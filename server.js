@@ -26,16 +26,16 @@ con.connect((err) => {
 
 app.route('/')
 .get((req, res) => {
-  console.log(req.query.table);
+  //console.log(req.query.table);
   con.query(`select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS
     where TABLE_NAME = \'${req.query.table}\';`, (err, result) => {
       if (err) throw err;
       res.send(result);
-      console.log(result);
+      //console.log(result);
     });
 });
 
-app.route('/books')
+app.route('/Books')
 .post((req, res) => {
   con.query(`insert into books(ISBN, title, pubYear, numpages, pubName)
   values(\'${req.body.isbn}\', \'${req.body.title}\', ${req.body.pubYear}, ${req.body.numPage}, \'${req.body.pubName}\');`);
@@ -43,7 +43,7 @@ app.route('/books')
   res.send({status: 'succ'});
 })
 .get((req, res) => {
-  console.log(req.query.table);
+  //console.log(req.query.table);
   con.query(`select * from library.${req.query.table};`, (err, result) => {
     if (err) throw err;
     res.send(result);
