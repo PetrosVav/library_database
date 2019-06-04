@@ -3,11 +3,11 @@ import axios from 'axios';
 import Table from "./Table.js";
 import './style.css';
 
-
 class Dropdown extends Component {
   constructor() {
     super();
 
+    //Initially there is no table
     this.state = {
          displayMenu: false,
          choice: "Select Table",
@@ -21,24 +21,43 @@ class Dropdown extends Component {
     this.resetTable = this.resetTable.bind(this);
   };
 
-  changeTable(table) {
+  //Change displayed table
+  //cat is the name of the table
+  changeTable(cat) {
 
     axios.get('http://localhost:5000/', { params: {
-      table: table
+      table: cat
     }})
     .then( (response) => {
-      //console.log(response);
-      var attributeNames = response.data.map( (x) => {return x.COLUMN_NAME;} );
-      //console.log(this.state.table);
-      //console.log(attributeNames);
-      this.setState({choice: table, table: new Table(attributeNames,table)});
-      console.log(this.state.table.state.attributes);
+      var attributeNames;
+      switch (cat) {
+        case("Books"):
+          attributeNames = {
+            ISBN:"ISBN",
+            title:"Title",
+            pubYear:"Publication Year",
+            numpages:"Number of Pages",
+            pubName:"Publisher"
+          };
+          break;
+        case("Authors"):
+          attributeNames = {
+            AFirst:"First Name",
+            ALast:"Last Name",
+            ABirthdate:"Birthdate"
+          };
+          break;
+        default:
+          //attributeNames = response.data.map( (x) => {return x.COLUMN_NAME};} );
+      }
+
+      this.setState({choice: cat, table: attributeNames});
     });
   }
 
   showDropdownMenu(event) {
     event.preventDefault();
-    this.setState({ displayMenu: true }, () => {
+    this.setState({choice: "Select Table", table: null, displayMenu: true }, () => {
     document.addEventListener('click', this.hideDropdownMenu);
     });
   }
@@ -49,6 +68,7 @@ class Dropdown extends Component {
     });
 
   }
+
   resetTable(){
     this.setState({table : null});
   }
@@ -56,38 +76,32 @@ class Dropdown extends Component {
   render() {
     return (
       <div>
-        <div  className="dropdown" style = {{background:"red",width:"200px"}} >
-         <div className="button" onClick={this.showDropdownMenu}>
-          {this.state.displayMenu ? "" : this.state.choice}
-      </div>
-
+        <div className="dropdown">
+          <div className="button" onClick={this.showDropdownMenu}>
+            {this.state.displayMenu ? "Select Table" : this.state.choice}
+          </div>
           { this.state.displayMenu ? (
-          <ul>
-         <li onClick={(e) => {e.preventDefault(); this.changeToBooks()}}>Books</li>
-         <li onClick={(e) => {e.preventDefault(); this.changeToAuthors()}}>Authors</li>
-         </ul>
+            <ul>
+              <li onClick={(e) => {e.preventDefault(); this.changeToBooks()}}>Books</li>
+              <li onClick={(e) => {e.preventDefault(); this.changeToAuthors()}}>Authors</li>
+            </ul>
+          ):
+          (
+          null
+          )
+          }
+        </div>
+        { this.state.table ?
+        (
+          <Table atr={this.state.table} name={this.state.choice}/>
         ):
         (
           null
         )
         }
-       </div>
-
-          {this.state.displayMenu ? (
-            console.log("Half_End"),
-            (this.state.table!=null) ? (this.resetTable()):(null) ,
-            null
-          ):
-          (
-            console.log("End"),
-            this.state.table!=null && <Table atr={this.state.table.state.attributes} name={this.state.choice}/>
-          )
-          }
-
       </div>
     );
   }
 }
 
 export default Dropdown;
-//this.state.table!=null && this.setState({table: null}),

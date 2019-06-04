@@ -1,3 +1,14 @@
+html {
+  background: no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background: radial-gradient(#ffb76b 0%,#ffa73d 29%,#ff7c00 71%,#ff7f04 100%);
+  background-repeat:no-repeat;
+  background-size: cover;
+  height: 100%;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",

@@ -16,7 +16,8 @@ const con = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "123456",
-  database: "library"
+  database: "library",
+  dateStrings: true
 });
 
 con.connect((err) => {
@@ -31,16 +32,15 @@ app.route('/')
     where TABLE_NAME = \'${req.query.table}\';`, (err, result) => {
       if (err) throw err;
       res.send(result);
-      //console.log(result);
     });
 });
 
-app.route('/Books')
+app.route('/table')
 .post((req, res) => {
-  con.query(`insert into books(ISBN, title, pubYear, numpages, pubName)
-  values(\'${req.body.isbn}\', \'${req.body.title}\', ${req.body.pubYear}, ${req.body.numPage}, \'${req.body.pubName}\');`);
-  console.log(req.body);
-  res.send({status: 'succ'});
+  con.query(`insert into ${req.body.table}(${Object.keys(req.body.insertTuple).join(',')})
+  values(\'${Object.values(req.body.insertTuple).join('\',\'')}\');`, (err, result) => {
+    res.send({err: err, result: result});
+  });
 })
 .get((req, res) => {
   //console.log(req.query.table);
@@ -48,4 +48,23 @@ app.route('/Books')
     if (err) throw err;
     res.send(result);
   });
+})
+.delete((req,res)=>{
+
+  con.query(`SHOW KEYS FROM library.${req.query.table} WHERE Key_name = \'PRIMARY\'`,(err,result) =>{
+    console.log(result[0].Column_name);
+    var obj = JSON.parse(req.query.value);
+    console.log(obj);
+    con.query(`delete from library.${req.query.table} where ${result[0].Column_name} = ${obj.authorID};`,
+      (err) => {
+        if (err) throw err;
+      });
+      con.query(`select * from library.${req.query.table};`, (err, result) => {
+        if (err) throw err;
+        res.send(result);
+      });
+    //pk=result[0].Column_name;
+  });
+  //console.log(pk);
+
 });
