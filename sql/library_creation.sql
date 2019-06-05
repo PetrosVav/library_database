@@ -1,4 +1,4 @@
-drop database library;
+drop database if exists library;
 
 create database library;
 
@@ -35,7 +35,7 @@ create table books (
     pubYear year not null,
     numpages int unsigned not null,
     pubName varchar(30) not null,
-    foreign key (pubName) references publishers(pubName),
+    foreign key (pubName) references publishers(pubName) on delete no action,
     constraint ISBN_chk check (ISBN not like '%[^0-9]%' and (length(ISBN) = 10 or length(ISBN) = 13))
 );
 
@@ -43,22 +43,22 @@ create table written_by (
 	ISBN varchar(13),
     authorID int not null,
     primary key (ISBN, authorID),
-	foreign key (ISBN) references books(ISBN),
-    foreign key (authorID) references authors(authorID)
+	foreign key (ISBN) references books(ISBN) on delete cascade,
+    foreign key (authorID) references authors(authorID) on delete cascade
 );
 
 create table categories (
 	categoryName varchar(30) primary key check(categoryName <> ''),
 	supercategoryName varchar(30) null,
-    foreign key (supercategoryName) references categories(categoryName)
+    foreign key (supercategoryName) references categories(categoryName) on delete set null
 );
 
 create table belongs_to (
 	ISBN varchar(13),
     categoryName varchar(30),
     primary key (ISBN, categoryName),
-	foreign key (ISBN) references books(ISBN),
-    foreign key (categoryName) references categories(categoryName)
+	foreign key (ISBN) references books(ISBN) on delete cascade,
+    foreign key (categoryName) references categories(categoryName) on delete cascade
 );
 
 create table copies (
@@ -66,7 +66,7 @@ create table copies (
     copyNr int unsigned,
     shelfPosition int unsigned not null,
     primary key (ISBN, copyNr),
-    foreign key (ISBN) references books(ISBN)
+    foreign key (ISBN) references books(ISBN) on delete cascade
 );
 
 create table employees (
@@ -79,13 +79,13 @@ create table employees (
 create table permanent_employee (
 	empID int primary key,
     HiringDate date not null,
-    foreign key (empID) references employees(empID)
+    foreign key (empID) references employees(empID) on delete cascade
 );
 
 create table temporary_employee (
 	empID int primary key,
     ContractNr int unsigned not null,
-    foreign key (empID) references employees(empID)
+    foreign key (empID) references employees(empID) on delete cascade
 );
 
 create table borrows (
@@ -95,16 +95,7 @@ create table borrows (
     copyNr int unsigned not null,
     date_of_borrowing date not null,
     date_of_return date,
-    foreign key (memberID) references members(memberID),
-    foreign key (ISBN, copyNr) references copies(ISBN, copyNr),
+    foreign key (memberID) references members(memberID) on delete cascade,
+    foreign key (ISBN, copyNr) references copies(ISBN, copyNr) on delete cascade,
     constraint chk_date check (date_of_return > date_of_borrowing)
-);
-
-create table reminder (
-	rID int auto_increment primary key,
-    empID int not null,
-    bID int not null,
-    date_of_reminder date not null,
-    foreign key (empID) references employees(empID),
-    foreign key (bID) references borrows(bID)
 );
