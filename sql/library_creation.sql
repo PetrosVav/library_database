@@ -63,7 +63,7 @@ create table belongs_to (
 
 create table copies (
 	ISBN varchar(13),
-    copyNr int unsigned,
+    copyNr int unsigned default 1, #is assigned by trigger
     shelfPosition int unsigned not null,
     primary key (ISBN, copyNr),
     foreign key (ISBN) references books(ISBN) on delete cascade
@@ -73,7 +73,7 @@ create table employees (
 	empID int auto_increment primary key,
     EFirst text not null check(EFirst <> ''),
     ELast text not null check(ELast <> ''),
-    salary dec(5,2) unsigned not null
+    salary dec(7,2) unsigned not null
 );
 
 create table permanent_employee (
@@ -94,8 +94,17 @@ create table borrows (
     ISBN varchar(13) not null,
     copyNr int unsigned not null,
     date_of_borrowing date not null,
-    date_of_return date,
+    date_of_return date default null,
     foreign key (memberID) references members(memberID) on delete cascade,
     foreign key (ISBN, copyNr) references copies(ISBN, copyNr) on delete cascade,
     constraint chk_date check (date_of_return > date_of_borrowing)
+);
+
+create table reminder (
+	rID int auto_increment primary key,
+    empID int,
+    bID int not null,
+    date_of_reminder date not null,
+    foreign key (empID) references employees(empID) on delete set null,
+    foreign key (bID) references borrows(bID) on delete cascade
 );
