@@ -37,10 +37,19 @@ app.route('/')
 
 app.route('/table')
 .post((req, res) => {
-  con.query(`insert into ${req.body.table}(${Object.keys(req.body.insertTuple).join(',')})
-  values(\'${Object.values(req.body.insertTuple).join('\',\'')}\');`, (err, result) => {
-    res.send({err: err, result: result});
-  });
+  if(!req.body.update)
+    con.query(`insert into ${req.body.table}(${Object.keys(req.body.insertTuple).join(',')})
+    values(\'${Object.values(req.body.insertTuple).join('\',\'')}\');`, (err, result) => {
+      res.send({err: err, result: result});
+    });
+  else {
+    con.query(`update ${req.body.table}
+      set ${Object.entries(req.body.insertTuple).map( (x) => {return x[0]+" = \'"+x[1]+"\' "})}
+      where ${req.body.pk} = '${req.body.pkValue}';`,
+    (err,result)=>{
+      res.send({err:err, result:result});
+    });
+  }
 })
 .get((req, res) => {
   //console.log(req.query.table);
