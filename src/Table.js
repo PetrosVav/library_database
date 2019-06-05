@@ -2,17 +2,16 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import Popup from "./Popup.js";
 import { TiDelete } from "react-icons/ti";
-import { MdDeleteForever } from "react-icons/md";
+import { MdDeleteForever, MdEdit } from "react-icons/md";
 import { IoIosAddCircleOutline, IoIosArrowDropdown, IoIosArrowDropup } from "react-icons/io";
 
 class Table extends Component {
   constructor() {
     super();
-
     this.state = {
       isLoading:false,
       attributes: null,
-      name: "",
+      row:null,
       rows:null,
       atrRows:null,
       showPopup: false,
@@ -100,8 +99,16 @@ class Table extends Component {
     });
   }
 
+  openEditPopup(row) {
+    this.setState({
+      row:row,
+      showPopup: true
+    });
+  }
+
   openPopup() {
     this.setState({
+      row: null,
       showPopup: true
     });
   }
@@ -121,8 +128,22 @@ class Table extends Component {
     if(this.state.isLoading) return (
       <p>Loading...</p>
     );
-    const { loading, attributes, name, rows, atrRows } = this.state;
+    const { loading, attributes, rows, atrRows } = this.state;
     if(atrRows != null){
+      console.log(attributes);
+      var columns= Object.entries(attributes).map((a)=> {return {Header:a[1],accessor:a[0]} });
+      columns = columns.concat([{Header:<MdDeleteForever size={25}/>,accessor:"hey" ,id:1}]);
+      console.log("col: ");
+      console.log(columns);
+      console.log(atrRows);
+      var re='{\"' + "rows"+'\":\"' + "bla" +'\"}';
+      console.log(re);
+      console.log(JSON.parse('{ "name":"John", "age":30, "city":"New York", '+'\"hey\":\"<MdDeleteForever size={25}/>\"' +'}'));
+      console.log(JSON.parse(re));
+      var data = atrRows.map((a)=> {return JSON.parse('{'+Object.keys(attributes).map((x)=>{ return ('\"'+x+'\":\"'+a[x]+'\"')  })+ ', \"hey\":"<MdDeleteForever size={25}/>"}')});
+      //data = data.map(x=>{return x.concat([{}])})
+      console.log("data: ");
+      console.log(data);
       return (
         <>
         <table>
@@ -130,9 +151,12 @@ class Table extends Component {
         <tr>
           {Object.entries(attributes).map((x,i) => {
             return <th key={i} onClick={this.sort.bind(this, x[0])}> {x[1]}
-            {x[0] == this.state.sortBy ? (this.state.ascending ? (<IoIosArrowDropdown size={20} className="arrow"/>) : (<IoIosArrowDropup size={20} className="arrow"/>)) : (null)}
+            {x[0] === this.state.sortBy ? (this.state.ascending ? (<IoIosArrowDropdown size={20} className="arrow"/>) : (<IoIosArrowDropup size={20} className="arrow"/>)) : (null)}
             </th>
           })}
+          <th>
+            <MdEdit size={25}/>
+          </th>
           <th>
             <MdDeleteForever size={25}/>
           </th>
@@ -147,6 +171,9 @@ class Table extends Component {
                     Object.keys(attributes).map( (y,j) => {return <td key={j}> {x[y]} </td>;})
                   }
                   <td id="delete-col">
+                    <MdEdit size={30} className="delete-button" onClick={this.openEditPopup.bind(this,x)}/>
+                  </td>
+                  <td id="delete-col">
                     <TiDelete size={30} className="delete-button" onClick={ this.deleteRow.bind(this,x)}/>
                   </td>
                 </tr>
@@ -159,6 +186,7 @@ class Table extends Component {
         {this.state.showPopup ?
           <Popup
             table={this.state.name}
+            row={this.state.row}
             atr={this.state.attributes}
             text='Add Entry'
             closePopup={this.closePopup.bind(this)}

@@ -18,6 +18,7 @@ class Dropdown extends Component {
     this.hideDropdownMenu = this.hideDropdownMenu.bind(this);
     this.changeToBooks = this.changeTable.bind(this,"Books");
     this.changeToAuthors = this.changeTable.bind(this,"Authors");
+    this.changeToPublishers = this.changeTable.bind(this,"Publishers");
     this.resetTable = this.resetTable.bind(this);
   };
 
@@ -47,6 +48,14 @@ class Dropdown extends Component {
             ABirthdate:"Birthdate"
           };
           break;
+        case("Publishers"):
+          attributeNames = {
+             pubName: "Publisher",
+             estYear: "EstYear",
+             street: "Street",
+             strNum: "Street Number",
+             postalCode: "Postal Code"
+          }
         default:
           //attributeNames = response.data.map( (x) => {return x.COLUMN_NAME};} );
       }
@@ -84,6 +93,7 @@ class Dropdown extends Component {
             <ul>
               <li onClick={(e) => {e.preventDefault(); this.changeToBooks()}}>Books</li>
               <li onClick={(e) => {e.preventDefault(); this.changeToAuthors()}}>Authors</li>
+              <li onClick={(e) => {e.preventDefault(); this.changeToPublishers()}}>Publishers</li>
             </ul>
           ):
           (
