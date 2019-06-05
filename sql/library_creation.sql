@@ -100,7 +100,7 @@ create table borrows (
     constraint chk_date check (date_of_return > date_of_borrowing)
 );
 
-create table reminder (
+create table reminders (
 	rID int auto_increment primary key,
     empID int,
     bID int not null,

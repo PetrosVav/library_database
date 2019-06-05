@@ -76,3 +76,74 @@ app.route('/table')
 	});
   });
 });
+
+//Performs queries
+app.route('/query')
+.get( (req, res) => {
+  var query;
+  switch (req.query.query) {
+    case("Publishings"):
+      query =
+        `select temp.pubName, num
+         from publishers join (
+           select pubName, count(*) as num from books group by pubName
+         ) as temp
+         order by num desc;`;
+      break;
+    case("Borrowings"):
+      query =
+        `select title, copyNr, MFirst, MLast
+         from books as b
+         join borrows as brw on b.ISBN = brw.ISBN
+         join members as m on m.memberID = brw.memberID
+         where date_of_return is null;`;
+      break;
+    case("MoreThanThreeReminders"):
+      query =
+        `select EFirst, ELast, count(*) as remindNum
+         from employees as e join reminders as r on e.empID=r.empID
+         group by e.empID
+         having remindNum > 3;`;
+      break;
+    case("WellPaidEmployees"):
+      query =
+        `with
+          avg_salary as (select avg(salary) as s from employees)
+         select EFirst, ELast from employees, avg_salary where salary > avg_salary.s;`;
+      break;
+    case("StephenKingBooks"):
+      query =
+        `select title
+         from books as b
+         join written_by as w on b.ISBN = w.ISBN
+         join authors as a on a.authorID = w.authorID
+         where a.AFirst = 'Stephen' and a.ALast = 'King';`;
+      break;
+    case("MostPopularCategories"):
+      query =
+        `with
+          counts as (
+            select categoryName as cat, count(*) as num
+            from categories
+            group by categoryName
+          ),
+          max_count as (
+            select max(num) as c from counts
+          )
+        select cat from counts, max_count where num = max_count.c;`;
+      break;
+    case("CategoryCounts"):
+      query =
+        `select c.categoryName, count(*) as num
+         from categories as c join belongs_to as b
+         group by c.categoryName`;
+      break;
+    default:
+      break;
+  }
+  //console.log(req.query.table);
+  con.query(query, (err, result) => {
+    if (err) throw err;
+    res.send(result);
+  });
+});

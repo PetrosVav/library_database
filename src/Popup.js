@@ -3,7 +3,7 @@ import axios from 'axios';
 import { TiDelete } from "react-icons/ti";
 import './Popup.css';
 
-class Popup extends React.Component {
+class Popup extends Component {
   constructor(props) {
     super(props);
     let val;
@@ -37,10 +37,8 @@ class Popup extends React.Component {
 
 
     var insertTuple = {};
-    Object.entries(this.props.atr).forEach( entry =>
+    Object.keys(this.props.atr).forEach( key =>
       {
-        let key = entry[0];
-        let value = entry[1];
         let input = document.querySelector('#'+key).value;
         insertTuple[key] = input;
       }

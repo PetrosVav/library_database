@@ -8,8 +8,10 @@ import { IoIosAddCircleOutline, IoIosArrowDropdown, IoIosArrowDropup } from "rea
 class Table extends Component {
   constructor() {
     super();
+
     this.state = {
       isLoading:false,
+      editable: null,
       attributes: null,
       row:null,
       rows:null,
@@ -18,22 +20,20 @@ class Table extends Component {
       sortBy: null,
       ascending: true
     };
+
     this.fillTable = this.fillTable.bind(this);
     this.deleteRow = this.deleteRow.bind(this);
     this.sort = this.sort.bind(this);
   };
 
+  //Sort table
   sort = (sortBy) => {
     let ascending = this.state.ascending;
-    if (sortBy == this.state.sortBy)
+    if (sortBy === this.state.sortBy)
     {
-      console.log("Reversing order");
-      console.log(ascending);
       ascending = !ascending;
-      console.log(ascending);
     }
     let atrRows = this.state.atrRows.sort( (a,b) => {
-      //console.log("a: "+a[sortBy]+" b: "+b[sortBy]);
       let res = a[sortBy].localeCompare(b[sortBy]);
       return ascending ? res : -res;
     });
@@ -41,22 +41,16 @@ class Table extends Component {
   }
 
   fillTable = () => {
-    console.log("Filling Table");
-    this.setState({isLoading:true});
-    console.log("Sending get request for table: " + this.props.name);
-    axios.get(`http://localhost:5000/table`,{ params: {
-      table: this.props.name
-    }}
-    )
-    .then( (response)=> {
+    let uponResponse = (response)=> {
 
-      console.log("Got table: " + this.props.name);
+      console.log("Got result: " + this.props.name);
 
       //rows holds an array of values without the keys
       var rows = response.data.map( (x) => { return Object.keys(x).map( (y,z) => {return x[y]} )} );
 
       this.setState({
         isLoading: false,
+        editable: this.props.editable,
         attributes: this.props.atr,
         name: this.props.name,
         sortBy: null,
@@ -66,21 +60,40 @@ class Table extends Component {
       this.setState({atrRows:response.data});
       this.setState({rows:rows});
       console.log(rows);
-    })
-    .catch(error => {
-      console.log("error: ",error);
-      this.setState({
-        isLoading:false
-      });
-    });
+    }
+
+    console.log("Filling Table");
+    this.setState({isLoading:true});
+    console.log("Sending get request for: " + this.props.name);
+    switch (this.props.type) {
+      case 'table':
+        axios.get(`http://localhost:5000/table`,{ params: {
+          table: this.props.name
+        }}
+        )
+        .then( uponResponse );
+        break;
+      case 'query':
+        axios.get(`http://localhost:5000/query`,{ params: {
+          query: this.props.name
+        }}
+        )
+        .then( uponResponse )
+        .catch(error => {
+          console.log("error: ",error);
+          this.setState({
+            isLoading:false
+          });
+        });
+        break;
+      default:
+        break;
+    }
   };
 
   deleteRow(row){
 
     this.setState({isLoading:true});
-    console.log("Jim");
-    console.log(row);
-    console.log("Jim");
     axios.delete('http://localhost:5000/table',{
       params:{
         table:this.props.name,
@@ -88,9 +101,7 @@ class Table extends Component {
       }}
     )
     .then( (response)=>{
-      console.log("heyheyheyhey");
-      //console.log(response);
-      var rows = response.data.map( (x)=>{ return Object.keys(x).map( (y,z) =>{return x[y]} );} );
+      var rows = response.data.map( (x) => { return Object.keys(x).map( (y,z) =>{return x[y]} );} );
       this.setState({
         isLoading: false,
         rows:rows,
@@ -128,38 +139,46 @@ class Table extends Component {
     if(this.state.isLoading) return (
       <p>Loading...</p>
     );
-    const { loading, attributes, rows, atrRows } = this.state;
+    const { attributes, atrRows } = this.state;
     if(atrRows != null){
-      console.log(attributes);
-      var columns= Object.entries(attributes).map((a)=> {return {Header:a[1],accessor:a[0]} });
-      columns = columns.concat([{Header:<MdDeleteForever size={25}/>,accessor:"hey" ,id:1}]);
-      console.log("col: ");
-      console.log(columns);
-      console.log(atrRows);
-      var re='{\"' + "rows"+'\":\"' + "bla" +'\"}';
-      console.log(re);
-      console.log(JSON.parse('{ "name":"John", "age":30, "city":"New York", '+'\"hey\":\"<MdDeleteForever size={25}/>\"' +'}'));
-      console.log(JSON.parse(re));
-      var data = atrRows.map((a)=> {return JSON.parse('{'+Object.keys(attributes).map((x)=>{ return ('\"'+x+'\":\"'+a[x]+'\"')  })+ ', \"hey\":"<MdDeleteForever size={25}/>"}')});
-      //data = data.map(x=>{return x.concat([{}])})
-      console.log("data: ");
-      console.log(data);
+      // console.log(attributes);
+      // var columns= Object.entries(attributes).map((a)=> {return {Header:a[1],accessor:a[0]} });
+      // columns = columns.concat([{Header:<MdDeleteForever size={25}/>,accessor:"hey" ,id:1}]);
+      // console.log("col: ");
+      // console.log(columns);
+      // console.log(atrRows);
+      // var re='{\"' + "rows"+'\":\"' + "bla" +'\"}';
+      // console.log(re);
+      // console.log(JSON.parse('{ "name":"John", "age":30, "city":"New York", '+'\"hey\":\"<MdDeleteForever size={25}/>\"' +'}'));
+      // console.log(JSON.parse(re));
+      // var data = atrRows.map((a)=> {return JSON.parse('{'+Object.keys(attributes).map((x)=>{ return ('\"'+x+'\":\"'+a[x]+'\"')  })+ ', \"hey\":"<MdDeleteForever size={25}/>"}')});
+      // //data = data.map(x=>{return x.concat([{}])})
+      // console.log("data: ");
+      // console.log(data);
       return (
         <>
         <table>
         <thead>
         <tr>
           {Object.entries(attributes).map((x,i) => {
-            return <th key={i} onClick={this.sort.bind(this, x[0])}> {x[1]}
+            return <th className="orderable" key={i} onClick={this.sort.bind(this, x[0])}> {x[1]}
             {x[0] === this.state.sortBy ? (this.state.ascending ? (<IoIosArrowDropdown size={20} className="arrow"/>) : (<IoIosArrowDropup size={20} className="arrow"/>)) : (null)}
             </th>
           })}
-          <th>
-            <MdEdit size={25}/>
-          </th>
-          <th>
-            <MdDeleteForever size={25}/>
-          </th>
+          { this.state.editable ?
+            ( <>
+              <th>
+                <MdEdit size={25}/>
+              </th>
+              <th>
+                <MdDeleteForever size={25}/>
+              </th>
+              </>
+            ) :
+            (
+              null
+            )
+          }
         </tr>
         </thead>
         <tbody>
@@ -170,19 +189,34 @@ class Table extends Component {
                   {
                     Object.keys(attributes).map( (y,j) => {return <td key={j}> {x[y]} </td>;})
                   }
-                  <td id="delete-col">
-                    <MdEdit size={30} className="delete-button" onClick={this.openEditPopup.bind(this,x)}/>
-                  </td>
-                  <td id="delete-col">
-                    <TiDelete size={30} className="delete-button" onClick={ this.deleteRow.bind(this,x)}/>
-                  </td>
+                  { this.state.editable ?
+                    ( <>
+                      <td id="delete-col">
+                        <MdEdit size={30} className="delete-button" onClick={this.openEditPopup.bind(this,x)}/>
+                      </td>
+                      <td id="delete-col">
+                        <TiDelete size={30} className="delete-button" onClick={ this.deleteRow.bind(this,x)}/>
+                      </td>
+                      </>
+                    ) :
+                    (
+                      null
+                    )
+                  }
                 </tr>
               );
             } )
           }
         </tbody>
         </table>
-        <IoIosAddCircleOutline className="add-button" size={30} onClick={this.openPopup.bind(this)}/>
+        { this.state.editable ?
+          (
+            <IoIosAddCircleOutline className="add-button" size={30} onClick={this.openPopup.bind(this)}/>
+          ) :
+          (
+            null
+          )
+        }
         {this.state.showPopup ?
           <Popup
             table={this.state.name}

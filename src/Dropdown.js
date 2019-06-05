@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import axios from 'axios';
 import Table from "./Table.js";
 import './style.css';
 
@@ -11,14 +10,30 @@ class Dropdown extends Component {
     this.state = {
          displayMenu: false,
          choice: "Select",
-         table: null
+         table: null,
+         tableName: null,
+         tabletype: null,
+         editableTable: false
     };
 
     this.showDropdownMenu = this.showDropdownMenu.bind(this);
     this.hideDropdownMenu = this.hideDropdownMenu.bind(this);
+    //Tables
     this.changeToBooks = this.changeTable.bind(this,"Books");
     this.changeToAuthors = this.changeTable.bind(this,"Authors");
     this.changeToCategories = this.changeTable.bind(this,"Categories");
+    //Views
+    this.changeToCategorieNames = this.changeTable.bind(this,"CategorieNames");
+    this.changeToCopyNr = this.changeTable.bind(this, "CopyNr");
+    //Queries
+    this.changeToPublishings = this.changeTable.bind(this, "Publishings");
+    this.changeToBorrowings = this.changeTable.bind(this, "Borrowings");
+    this.changeToMoreThanThreeReminders = this.changeTable.bind(this, "MoreThanThreeReminders");
+    this.changeToWellPaidEmployees = this.changeTable.bind(this, "WellPaidEmployees");
+    this.changeToStephenKingBooks = this.changeTable.bind(this, "StephenKingBooks");
+    this.changeToMostPopularCategories = this.changeTable.bind(this, "MostPopularCategories");
+    this.changeToCategoryCounts = this.changeTable.bind(this, "CategoryCounts");
+
     this.resetTable = this.resetTable.bind(this);
   };
 
@@ -29,37 +44,134 @@ class Dropdown extends Component {
 	  //with the names of the columns on the daatabase as the keys
 	  //and the names to be diasplayed as the values
 	  var attributeNames;
+    var type = "";
+    var editable = false;
+    var choice = "";
 	  switch (cat) {
 		case("Books"):
+      choice = "Books";
+      type = "table";
+      editable = true;
 		  attributeNames = {
-			ISBN:"ISBN",
-			title:"Title",
-			pubYear:"Publication Year",
-			numpages:"Number of Pages",
-			pubName:"Publisher"
+  			ISBN:"ISBN",
+  			title:"Title",
+  			pubYear:"Publication Year",
+  			numpages:"Number of Pages",
+  			pubName:"Publisher"
 		  };
 		  break;
 		case("Authors"):
+      choice = "Authors";
+      type = "table";
+      editable = true;
 		  attributeNames = {
-			AFirst:"First Name",
-			ALast:"Last Name",
-			ABirthdate:"Birthdate"
+  			AFirst:"First Name",
+  			ALast:"Last Name",
+  			ABirthdate:"Birthdate"
 		  };
 		  break;
 		case("Categories"):
+      choice = "Categories";
+      type = "table";
+      editable = true;
 		  attributeNames = {
-			 categoryName: "Category",
-			 supercategory: "SupercategoryName"
-		  }
+        categoryName: "Category",
+        supercategory: "SupercategoryName"
+      };
+      break;
+    case("CategorieNames"):
+      choice = "Categorie Names";
+      type = "table";
+      editable = true;
+      attributeNames = {
+        category: "Category"
+      };
+      break;
+    case("CopyNr"):
+      choice = "Number of Copies";
+      type = "table";
+      editable = false;
+      attributeNames = {
+        ISBN: "ISBN",
+        num: "Number of Copies"
+      };
+    break;
+    case("Publishings"):
+      choice = "Nr of Titles per Publisher";
+      type = "query";
+      editable = false;
+      attributeNames = {
+        pubName: "Publisher",
+        num: "Number of Titles"
+      };
+      break;
+    case("Borrowings"):
+      choice = "Active Borrowing Records";
+      type = "query";
+      editable = false;
+      attributeNames = {
+        title: "Title",
+        copyNr: "Copy Number",
+        MFirst: "First Name",
+        MLast: "Last Name"
+      };
+      break;
+    case("MoreThanThreeReminders"):
+      choice = "Remindful Employees";
+      type = "query";
+      editable = false;
+      attributeNames = {
+        EFirst: "First Name",
+        ELast: "Last Name",
+        remindNum: "Number of Reminders"
+      };
+      break;
+    case("WellPaidEmployees"):
+      choice = "Well Paid Employees";
+      type = "query";
+      editable = false;
+      attributeNames = {
+        EFirst: "First Name",
+        ELast: "Last Name"
+      };
+      break;
+    case("StephenKingBooks"):
+      choice = "Stephen King Books";
+      type = "query";
+      editable = false;
+      attributeNames = {
+        title: "Title"
+      };
+      break;
+    case("MostPopularCategories"):
+      choice = "Most Popular Categories";
+      type = "query";
+      editable = false;
+      attributeNames = {
+        cat: "Category"
+      };
+      break;
+    case("CategoryCounts"):
+      choice = "Nr of Titles per Category";
+      type = "query";
+      editable = false;
+      attributeNames = {
+        categoryName: "Category",
+        num: "Number of Books"
+      };
+      break;
+    default:
+      attributeNames = {};
+      break;
 	  }
 
-	  this.setState({choice: cat, table: attributeNames});
+	  this.setState({choice: choice, table: attributeNames, tableName: cat, tabletype: type, editableTable: editable});
   }
 
   showDropdownMenu(event) {
     event.preventDefault();
     this.setState({choice: "Select", table: null, displayMenu: true }, () => {
-    document.addEventListener('click', this.hideDropdownMenu);
+      document.addEventListener('click', this.hideDropdownMenu);
     });
   }
 
@@ -86,6 +198,14 @@ class Dropdown extends Component {
               <li onClick={(e) => {e.preventDefault(); this.changeToBooks()}}>Books</li>
               <li onClick={(e) => {e.preventDefault(); this.changeToAuthors()}}>Authors</li>
               <li onClick={(e) => {e.preventDefault(); this.changeToCategories()}}>Categories</li>
+              <li onClick={(e) => {e.preventDefault(); this.changeToCopyNr()}}>Number of Copies</li>
+              <li onClick={(e) => {e.preventDefault(); this.changeToPublishings()}}>Nr of Titles per Publisher</li>
+              <li onClick={(e) => {e.preventDefault(); this.changeToCategoryCounts()}}>Nr of Titles per Category</li>
+              <li onClick={(e) => {e.preventDefault(); this.changeToBorrowings()}}>Active Borrowing Records</li>
+              <li onClick={(e) => {e.preventDefault(); this.changeToMoreThanThreeReminders()}}>Remindful Employees</li>
+              <li onClick={(e) => {e.preventDefault(); this.changeToWellPaidEmployees()}}>Well Paid Employees</li>
+              <li onClick={(e) => {e.preventDefault(); this.changeToStephenKingBooks()}}>Stephen King Books</li>
+              <li onClick={(e) => {e.preventDefault(); this.changeToMostPopularCategories()}}>Most Popular Categories</li>
             </ul>
           ):
           (
@@ -95,7 +215,7 @@ class Dropdown extends Component {
         </div>
         { this.state.table ?
         (
-          <Table atr={this.state.table} name={this.state.choice}/>
+          <Table atr={this.state.table} editable={this.state.editableTable} type={this.state.tabletype} name={this.state.tableName}/>
         ):
         (
           null
