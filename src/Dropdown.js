@@ -10,7 +10,7 @@ class Dropdown extends Component {
     //Initially there is no table
     this.state = {
          displayMenu: false,
-         choice: "Select Table",
+         choice: "Select",
          table: null
     };
 
@@ -18,55 +18,47 @@ class Dropdown extends Component {
     this.hideDropdownMenu = this.hideDropdownMenu.bind(this);
     this.changeToBooks = this.changeTable.bind(this,"Books");
     this.changeToAuthors = this.changeTable.bind(this,"Authors");
-    this.changeToPublishers = this.changeTable.bind(this,"Publishers");
+    this.changeToCategories = this.changeTable.bind(this,"Categories");
     this.resetTable = this.resetTable.bind(this);
   };
 
   //Change displayed table
   //cat is the name of the table
   changeTable(cat) {
+	  //Depending on the table set the create a dictionary
+	  //with the names of the columns on the daatabase as the keys
+	  //and the names to be diasplayed as the values
+	  var attributeNames;
+	  switch (cat) {
+		case("Books"):
+		  attributeNames = {
+			ISBN:"ISBN",
+			title:"Title",
+			pubYear:"Publication Year",
+			numpages:"Number of Pages",
+			pubName:"Publisher"
+		  };
+		  break;
+		case("Authors"):
+		  attributeNames = {
+			AFirst:"First Name",
+			ALast:"Last Name",
+			ABirthdate:"Birthdate"
+		  };
+		  break;
+		case("Categories"):
+		  attributeNames = {
+			 categoryName: "Category",
+			 supercategory: "SupercategoryName"
+		  }
+	  }
 
-    axios.get('http://localhost:5000/', { params: {
-      table: cat
-    }})
-    .then( (response) => {
-      var attributeNames;
-      switch (cat) {
-        case("Books"):
-          attributeNames = {
-            ISBN:"ISBN",
-            title:"Title",
-            pubYear:"Publication Year",
-            numpages:"Number of Pages",
-            pubName:"Publisher"
-          };
-          break;
-        case("Authors"):
-          attributeNames = {
-            AFirst:"First Name",
-            ALast:"Last Name",
-            ABirthdate:"Birthdate"
-          };
-          break;
-        case("Publishers"):
-          attributeNames = {
-             pubName: "Publisher",
-             estYear: "EstYear",
-             street: "Street",
-             strNum: "Street Number",
-             postalCode: "Postal Code"
-          }
-        default:
-          //attributeNames = response.data.map( (x) => {return x.COLUMN_NAME};} );
-      }
-
-      this.setState({choice: cat, table: attributeNames});
-    });
+	  this.setState({choice: cat, table: attributeNames});
   }
 
   showDropdownMenu(event) {
     event.preventDefault();
-    this.setState({choice: "Select Table", table: null, displayMenu: true }, () => {
+    this.setState({choice: "Select", table: null, displayMenu: true }, () => {
     document.addEventListener('click', this.hideDropdownMenu);
     });
   }
@@ -93,7 +85,7 @@ class Dropdown extends Component {
             <ul>
               <li onClick={(e) => {e.preventDefault(); this.changeToBooks()}}>Books</li>
               <li onClick={(e) => {e.preventDefault(); this.changeToAuthors()}}>Authors</li>
-              <li onClick={(e) => {e.preventDefault(); this.changeToPublishers()}}>Publishers</li>
+              <li onClick={(e) => {e.preventDefault(); this.changeToCategories()}}>Categories</li>
             </ul>
           ):
           (

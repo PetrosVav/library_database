@@ -12,10 +12,11 @@ const port = 5000;
 
 app.listen(port);
 
+//Set up connection to database
 const con = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "123456",
+  password: "root",
   database: "library",
   dateStrings: true
 });
@@ -26,16 +27,17 @@ con.connect((err) => {
 });
 
 app.route('/')
+//Returns the columns of a table
 .get((req, res) => {
-  //console.log(req.query.table);
   con.query(`select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS
-    where TABLE_NAME = \'${req.query.table}\';`, (err, result) => {
+  where TABLE_NAME = \'${req.query.table}\';`, (err, result) => {
       if (err) throw err;
       res.send(result);
     });
 });
 
 app.route('/table')
+//Performs insertions or updates based on an option specified in the request
 .post((req, res) => {
   if(!req.body.update)
     con.query(`insert into ${req.body.table}(${Object.keys(req.body.insertTuple).join(',')})
@@ -44,13 +46,14 @@ app.route('/table')
     });
   else {
     con.query(`update ${req.body.table}
-      set ${Object.entries(req.body.insertTuple).map( (x) => {return x[0]+" = \'"+x[1]+"\' "})}
-      where ${req.body.pk} = '${req.body.pkValue}';`,
-    (err,result)=>{
-      res.send({err:err, result:result});
-    });
+	set ${Object.entries(req.body.insertTuple).map( (x) => {return x[0]+" = \'"+x[1]+"\' "})}
+	where ${req.body.pk} = '${req.body.pkValue}';`,
+	(err,result) => {
+		res.send({err:err, result:result});
+	});
   }
 })
+//Returns the table specified in the request
 .get((req, res) => {
   //console.log(req.query.table);
   con.query(`select * from library.${req.query.table};`, (err, result) => {
@@ -58,22 +61,18 @@ app.route('/table')
     res.send(result);
   });
 })
+//Deletes a row
 .delete((req,res)=>{
 
-  con.query(`SHOW KEYS FROM library.${req.query.table} WHERE Key_name = \'PRIMARY\'`,(err,result) =>{
+  con.query(`SHOW KEYS FROM library.${req.query.table} WHERE Key_name = \'PRIMARY\'`,(err,result) => {
     console.log(result[0].Column_name);
     var obj = JSON.parse(req.query.value);
-    console.log(obj);
-    con.query(`delete from library.${req.query.table} where ${result[0].Column_name} = ${obj.authorID};`,
-      (err) => {
-        if (err) throw err;
-      });
-      con.query(`select * from library.${req.query.table};`, (err, result) => {
+	con.query(`delete from library.${req.query.table} where ${result[0].Column_name} = ${obj[result[0].Column_name]};`, (err) => {
+		if (err) throw err;
+	});
+	con.query(`select * from library.${req.query.table};`, (err, result) => {
         if (err) throw err;
         res.send(result);
-      });
-    //pk=result[0].Column_name;
+	});
   });
-  //console.log(pk);
-
 });
