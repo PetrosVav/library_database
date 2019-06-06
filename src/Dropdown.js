@@ -76,7 +76,7 @@ class Dropdown extends Component {
       editable = true;
 		  attributeNames = {
         categoryName: "Category",
-        supercategory: "SupercategoryName"
+        supercategoryName: "SupercategoryName"
       };
       break;
     case("Category_Names"):
@@ -84,7 +84,7 @@ class Dropdown extends Component {
       type = "table";
       editable = true;
       attributeNames = {
-        category: "Category"
+        categoryName: "Category"
       };
       break;
     case("CopyNr"):
@@ -191,7 +191,7 @@ class Dropdown extends Component {
       <div>
         <div className="dropdown">
           <div className="button" onClick={this.showDropdownMenu}>
-            {this.state.displayMenu ? "Select Table" : this.state.choice}
+            {this.state.displayMenu ? "Select" : this.state.choice}
           </div>
           { this.state.displayMenu ? (
             <ul>

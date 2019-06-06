@@ -86,7 +86,7 @@ class Popup extends Component {
               {
                 let key = entry[0];
                 let value = entry[1];
-                return <><label key={i}> {value}: <input name={i} type="text" value={this.state.val[i]} onChange={this.handleInputChange} id={key}/></label><br/></>;
+                return <><label key={i}> {value}: <input name={i} type="text" value={this.state.val[i] ? this.state.val[i] : ""} onChange={this.handleInputChange} id={key}/></label><br/></>;
               })
             }
             <input type="submit" value="Submit" onClick={this.insert} />

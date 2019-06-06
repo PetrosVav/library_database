@@ -87,7 +87,7 @@ app.route('/query')
         `select temp.pubName, num
          from publishers join (
            select pubName, count(*) as num from books group by pubName
-         ) as temp
+         ) as temp on publishers.pubName = temp.pubName
          order by num desc;`;
       break;
     case("Borrowings"):
