@@ -1,9 +1,7 @@
-select title, num from books join copynr;
-
 select temp.pubName, num 
 from publishers join (
 	select pubName, count(*) as num from books group by pubName
-    ) as temp
+    ) as temp on publisher.pubName = temp.pubName
 order by num desc;
     
 select title, copyNr, MFirst, MLast

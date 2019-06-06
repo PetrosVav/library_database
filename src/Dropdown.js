@@ -23,7 +23,7 @@ class Dropdown extends Component {
     this.changeToAuthors = this.changeTable.bind(this,"Authors");
     this.changeToCategories = this.changeTable.bind(this,"Categories");
     //Views
-    this.changeToCategorieNames = this.changeTable.bind(this,"CategorieNames");
+    this.changeToCategoryNames = this.changeTable.bind(this,"Category_Names");
     this.changeToCopyNr = this.changeTable.bind(this, "CopyNr");
     //Queries
     this.changeToPublishings = this.changeTable.bind(this, "Publishings");
@@ -71,7 +71,7 @@ class Dropdown extends Component {
 		  };
 		  break;
 		case("Categories"):
-      choice = "Categories";
+      choice = "Category Hierarchy";
       type = "table";
       editable = true;
 		  attributeNames = {
@@ -79,7 +79,7 @@ class Dropdown extends Component {
         supercategory: "SupercategoryName"
       };
       break;
-    case("CategorieNames"):
+    case("Category_Names"):
       choice = "Categorie Names";
       type = "table";
       editable = true;
@@ -197,7 +197,8 @@ class Dropdown extends Component {
             <ul>
               <li onClick={(e) => {e.preventDefault(); this.changeToBooks()}}>Books</li>
               <li onClick={(e) => {e.preventDefault(); this.changeToAuthors()}}>Authors</li>
-              <li onClick={(e) => {e.preventDefault(); this.changeToCategories()}}>Categories</li>
+              <li onClick={(e) => {e.preventDefault(); this.changeToCategories()}}>Category Hierarchy</li>
+              <li onClick={(e) => {e.preventDefault(); this.changeToCategoryNames()}}>Categorie Names</li>
               <li onClick={(e) => {e.preventDefault(); this.changeToCopyNr()}}>Number of Copies</li>
               <li onClick={(e) => {e.preventDefault(); this.changeToPublishings()}}>Nr of Titles per Publisher</li>
               <li onClick={(e) => {e.preventDefault(); this.changeToCategoryCounts()}}>Nr of Titles per Category</li>
