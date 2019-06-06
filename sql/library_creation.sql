@@ -49,7 +49,7 @@ create table written_by (
 
 create table categories (
 	categoryName varchar(30) primary key check(categoryName <> ''),
-	supercategoryName varchar(30) null,
+	supercategoryName varchar(30) default null,
     foreign key (supercategoryName) references categories(categoryName) on delete set null
 );
 

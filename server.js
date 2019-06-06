@@ -41,12 +41,12 @@ app.route('/table')
 .post((req, res) => {
   if(!req.body.update)
     con.query(`insert into ${req.body.table}(${Object.keys(req.body.insertTuple).join(',')})
-    values(\'${Object.values(req.body.insertTuple).join('\',\'')}\');`, (err, result) => {
+    values(${Object.values(req.body.insertTuple).map( (x) => {return (x === '' ? 'null' : '\'' + x + '\'')}).join(',')});`, (err, result) => {
       res.send({err: err, result: result});
     });
   else {
     con.query(`update ${req.body.table}
-	set ${Object.entries(req.body.insertTuple).map( (x) => {return x[0]+" = \'"+x[1]+"\' "})}
+	set ${Object.entries(req.body.insertTuple).map( (x) => {return x[0]+" = " + (x[1] === '' ? 'null' : '\'' + x[1] + '\' ')})}
 	where ${req.body.pk} = '${req.body.pkValue}';`,
 	(err,result) => {
 		res.send({err:err, result:result});
@@ -54,7 +54,7 @@ app.route('/table')
   }
 })
 //Returns the table specified in the request
-.get((req, res) => {
+.get( (req, res) => {
   //console.log(req.query.table);
   con.query(`select * from library.${req.query.table};`, (err, result) => {
     if (err) throw err;
@@ -62,19 +62,17 @@ app.route('/table')
   });
 })
 //Deletes a row
-.delete((req,res)=>{
-
-  con.query(`SHOW KEYS FROM library.${req.query.table} WHERE Key_name = \'PRIMARY\'`,(err,result) => {
-    console.log(result[0].Column_name);
+.delete( (req,res) => {
     var obj = JSON.parse(req.query.value);
-	con.query(`delete from library.${req.query.table} where ${result[0].Column_name} = ${obj[result[0].Column_name]};`, (err) => {
-		if (err) throw err;
-	});
-	con.query(`select * from library.${req.query.table};`, (err, result) => {
+    var pk = Object.keys(obj)[0];
+    console.log(`delete from library.${req.query.table} where ${Object.keys(obj)[0]} = \'${obj[0]}\';`);
+    con.query(`delete from library.${req.query.table} where ${pk} = \'${obj[pk]}\';`, (err) => {
+      if (err) throw err;
+      con.query(`select * from library.${req.query.table};`, (err, result) => {
         if (err) throw err;
         res.send(result);
-	});
-  });
+      });
+    });
 });
 
 //Performs queries
@@ -103,7 +101,7 @@ app.route('/query')
         `select EFirst, ELast, count(*) as remindNum
          from employees as e join reminders as r on e.empID=r.empID
          group by e.empID
-         having remindNum > 3;`;
+         having remindNum >= 3;`;
       break;
     case("WellPaidEmployees"):
       query =
@@ -124,7 +122,7 @@ app.route('/query')
         `with
           counts as (
             select categoryName as cat, count(*) as num
-            from categories
+            from belongs_to
             group by categoryName
           ),
           max_count as (
@@ -135,7 +133,7 @@ app.route('/query')
     case("CategoryCounts"):
       query =
         `select c.categoryName, count(*) as num
-         from categories as c join belongs_to as b
+         from categories as c join belongs_to as b on c.categoryName = b.categoryName
          group by c.categoryName`;
       break;
     default:

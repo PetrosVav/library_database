@@ -76,7 +76,7 @@ class Dropdown extends Component {
       editable = true;
 		  attributeNames = {
         categoryName: "Category",
-        supercategoryName: "SupercategoryName"
+        supercategoryName: "Supercategory"
       };
       break;
     case("Category_Names"):

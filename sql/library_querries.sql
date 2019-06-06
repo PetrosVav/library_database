@@ -14,7 +14,7 @@ where date_of_return is null;
 select EFirst, ELast, count(*) as remindNum
 from employees as e join reminders as r on e.empID=r.empID
 group by e.empID
-having remindNum > 3;
+having remindNum >= 3;
 
 
 with
@@ -29,7 +29,7 @@ where a.AFirst = 'Stephen' and a.ALast = 'King';
 with 
 	counts as (
 		select categoryName as cat, count(*) as num
-        from categories
+        from belongs_to
 		group by categoryName
 	), 
     max_count as (
@@ -39,5 +39,5 @@ select cat from counts, max_count where num = max_count.c;
 
 
 select c.categoryName, count(*) as num
-from categories as c join belongs_to as b
+from categories as c join belongs_to as b on c.categoryName = b.categoryName
 group by c.categoryName
