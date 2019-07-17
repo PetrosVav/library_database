@@ -1,11 +1,9 @@
 # Library Database Project
 
-One Paragraph of project description goes here
+The project concerns the development of a library system in a relational system.
 
-## Team members
-
-* [Peter Vavaroutsos](https://github.com/petrosvav)
-* [Peter Tzathas](https://github.com/pettza)
+### Relational Diagram
+![alt text](https://user-images.githubusercontent.com/44343347/61387032-9b538600-a8b5-11e9-85af-4c0c6876db60.png)
 
 ## Getting Started
 
@@ -64,3 +62,8 @@ https://localhost:3000
 
 * [ReactJS](https://reactjs.org/) - The web framework used
 * [MySQL](https://www.mysql.com/) - Database
+
+## Team Members
+* [Peter Vavaroutsos](https://github.com/PetrosVav)
+* [Peter Tzathas](https://github.com/Pettza)
+
