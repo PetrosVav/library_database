@@ -1,6 +1,6 @@
 # Library Database Project
 
-The project concerns the development of a library system in a relational system.
+The project concerns the development of a library database system in a relational system.
 
 ### Relational Diagram
 ![alt text](https://user-images.githubusercontent.com/44343347/61387032-9b538600-a8b5-11e9-85af-4c0c6876db60.png)
@@ -54,7 +54,7 @@ In a web browser hit the following address
 https://localhost:3000
 ```
 ### Note
-* The connection to the database is established in the file server.js. In order to be syccessful it is necessary to change the connection credentials (e.g. our username is root and password is also root).
+* The connection to the database is established in the file server.js. In order to be successful it is necessary to change the connection credentials (e.g. our username is root and password is also root).
 
 * The front-end is configured in all the files that are in the folder /src
 
